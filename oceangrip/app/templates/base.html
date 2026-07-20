@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}OceanGrip - Fishing Gear{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="/" class="logo">OceanGrip</a>
+            <nav class="main-nav">
+                <a href="/">Home</a>
+                <a href="/products">Shop</a>
+                <a href="/about">About</a>
+                <a href="/contact">Contact</a>
+            </nav>
+            <div class="header-icons">
+                <a href="/cart" class="cart-icon">Cart</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="footer-col">
+                <h3>OceanGrip</h3>
+                <p>Quality fishing gear for every angler, from first cast to deep sea.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <a href="/about">About Us</a>
+                <a href="/contact">Contact</a>
+                <a href="/faq">FAQ</a>
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms & Conditions</a>
+            </div>
+            <div class="footer-col">
+                <h4>Follow Us</h4>
+                <a href="#">Instagram</a>
+                <a href="#">Facebook</a>
+                <a href="#">YouTube</a>
+                <a href="#">WhatsApp</a>
+            </div>
+        </div>
+        <p class="footer-bottom">&copy; 2026 OceanGrip. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

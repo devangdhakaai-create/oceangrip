@@ -1,0 +1,241 @@
+:root {
+    --deep-navy: #0b2545;
+    --ocean-teal: #1b6b93;
+    --seafoam: #74c8c3;
+    --sand: #f4f1e8;
+    --coral: #e8734a;
+    --text-dark: #1a1a1a;
+    --text-light: #5a6a75;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--text-dark);
+    background: var(--sand);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* Header */
+.site-header {
+    background: var(--deep-navy);
+    padding: 18px 0;
+}
+
+.header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    color: var(--sand);
+    font-size: 24px;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+}
+
+.main-nav a {
+    color: var(--sand);
+    text-decoration: none;
+    margin-left: 28px;
+    font-size: 15px;
+    transition: color 0.2s;
+}
+
+.main-nav a:hover {
+    color: var(--seafoam);
+}
+
+.cart-icon {
+    color: var(--sand);
+    text-decoration: none;
+    font-size: 15px;
+    border: 1px solid var(--seafoam);
+    padding: 6px 14px;
+    border-radius: 4px;
+}
+
+/* Footer */
+.site-footer {
+    background: var(--deep-navy);
+    color: var(--sand);
+    margin-top: 60px;
+    padding: 48px 0 20px;
+}
+
+.footer-inner {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 32px;
+}
+
+.footer-col h3, .footer-col h4 {
+    margin-bottom: 14px;
+    color: var(--seafoam);
+}
+
+.footer-col a {
+    display: block;
+    color: var(--sand);
+    text-decoration: none;
+    margin-bottom: 8px;
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+.footer-col a:hover {
+    opacity: 1;
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 13px;
+    opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-inner {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .main-nav a {
+        margin: 0 10px;
+    }
+    .footer-inner {
+        flex-direction: column;
+    }
+}
+
+
+/* Hero */
+.hero {
+    background: linear-gradient(135deg, var(--deep-navy), var(--ocean-teal));
+    color: var(--sand);
+    padding: 100px 24px;
+    text-align: center;
+}
+
+.hero-content h1 {
+    font-size: 42px;
+    margin-bottom: 16px;
+}
+
+.hero-quote {
+    max-width: 600px;
+    margin: 0 auto 28px;
+    font-size: 17px;
+    opacity: 0.9;
+}
+
+.btn-primary {
+    background: var(--coral);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.btn-secondary {
+    background: var(--ocean-teal);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-block;
+    margin-top: 8px;
+}
+
+/* Sections */
+.intro-section, .why-us-section, .contact-preview {
+    text-align: center;
+    padding: 48px 0;
+}
+
+.section-title {
+    text-align: center;
+    margin: 48px 0 24px;
+    color: var(--deep-navy);
+}
+
+/* Category grid */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.category-card {
+    background: var(--ocean-teal);
+    color: white;
+    text-decoration: none;
+    padding: 24px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.category-card:hover {
+    transform: translateY(-4px);
+}
+
+/* Product grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+.product-card {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.product-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.product-price {
+    color: var(--coral);
+    font-weight: 700;
+    margin: 6px 0;
+}
+
+/* Why us */
+.why-us-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.why-us-item h4 {
+    color: var(--ocean-teal);
+    margin-bottom: 8px;
+}

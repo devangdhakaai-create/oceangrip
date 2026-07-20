@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}OceanGrip - Fishing Gear for Every Angler{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>Gear Up. Cast Out. Reel In.</h1>
+        <p class="hero-quote">"The best fisherman I ever met never went fishing." Whatever your level, we've got the gear for your next catch.</p>
+        <a href="/products" class="btn-primary">Shop Now</a>
+    </div>
+</section>
+
+<section class="container intro-section">
+    <h2>Welcome to OceanGrip</h2>
+    <p>We're a passionate team of anglers bringing you premium fishing gear built for real conditions — from calm lakes to open sea. Quality equipment, honest prices, and gear that lasts.</p>
+</section>
+
+<section class="container">
+    <h2 class="section-title">Shop by Category</h2>
+    <div class="category-grid">
+        {% for category in categories %}
+        <a href="/products?category={{ category.slug }}" class="category-card">
+            <h3>{{ category.name }}</h3>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="container">
+    <h2 class="section-title">Featured Products</h2>
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <img src="{{ product.image_url }}" alt="{{ product.name }}">
+            <h3>{{ product.name }}</h3>
+            <p class="product-price">₹{{ "%.2f"|format(product.price) }}</p>
+            <a href="/products/{{ product.slug }}" class="btn-secondary">View Details</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="container why-us-section">
+    <h2 class="section-title">Why Choose OceanGrip</h2>
+    <div class="why-us-grid">
+        <div class="why-us-item">
+            <h4>Quality Assured</h4>
+            <p>Every product tested for durability and performance.</p>
+        </div>
+        <div class="why-us-item">
+            <h4>Fast Shipping</h4>
+            <p>Quick, reliable delivery straight to your door.</p>
+        </div>
+        <div class="why-us-item">
+            <h4>Expert Support</h4>
+            <p>Real anglers ready to help you choose the right gear.</p>
+        </div>
+    </div>
+</section>
+
+<section class="container contact-preview">
+    <h2 class="section-title">Get in Touch</h2>
+    <p>Have questions? Reach out — we're happy to help.</p>
+    <a href="/contact" class="btn-primary">Contact Us</a>
+</section>
+
+{% endblock %}
