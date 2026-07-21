@@ -25,3 +25,32 @@ async def homepage(request: Request, db: AsyncSession = Depends(get_db)):
         "categories": categories,
         "products": featured_products,
     })
+    
+@router.get("/products/{slug}")
+async def product_details (slug: str, request: Request, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Product).where(Product.slug == slug))
+    product = result.scalar_one_or_none() # Here scalar gives the single column/object & one_or_none expect exactly 0 or 1 matching rows, means if 1 is found then return the product object intead none .
+    if not product:
+        return templates.TemplateResponse(
+            request=request,
+            name="404.html",
+            context={},
+            status_code=404
+        )
+    related_result  = await  db.execute(
+        select(Product).where (
+            Product.category_id == product.category_id,
+            Product.id != product.id
+        ).limit(4)
+    )
+    related_products = related_result.scalars().all()
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="product_details.html",
+        context={
+            "product":product,
+            "related_products": related_products,
+        }
+    )
+    

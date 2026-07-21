@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - OceanGrip{% endblock %}
+
+{% block content %}
+
+<div class="container product-detail">
+    <div class="product-detail-grid">
+        <div class="product-image">
+            <img src="{{ product.image_url }}" alt="{{ product.name }}">
+        </div>
+        <div class="product-info">
+            <h1>{{ product.name }}</h1>
+            <p class="product-detail-price">₹{{ "%.2f"|format(product.price) }}</p>
+            <p class="product-description">{{ product.description }}</p>
+
+            <p class="stock-status">
+                {% if product.stock > 0 %}
+                    In Stock ({{ product.stock }} available)
+                {% else %}
+                    Out of Stock
+                {% endif %}
+            </p>
+
+            <div class="product-actions">
+                <button class="btn-secondary">Add to Cart</button>
+                <button class="btn-primary">Buy Now</button>
+            </div>
+
+            <div class="specifications">
+                <h3>Specifications</h3>
+                <p>{{ product.specifications }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if related_products %}
+<section class="container">
+    <h2 class="section-title">Related Products</h2>
+    <div class="product-grid">
+        {% for item in related_products %}
+        <div class="product-card">
+            <img src="{{ item.image_url }}" alt="{{ item.name }}">
+            <h3>{{ item.name }}</h3>
+            <p class="product-price">₹{{ "%.2f"|format(item.price) }}</p>
+            <a href="/products/{{ item.slug }}" class="btn-secondary">View Details</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
