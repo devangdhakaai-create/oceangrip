@@ -16,16 +16,17 @@
 
             <p class="stock-status">
                 {% if product.stock > 0 %}
-                    In Stock ({{ product.stock }} available)
+                In Stock ({{ product.stock }} available)
                 {% else %}
-                    Out of Stock
+                Out of Stock
                 {% endif %}
             </p>
 
-            <div class="product-actions">
-                <button class="btn-secondary">Add to Cart</button>
-                <button class="btn-primary">Buy Now</button>
-            </div>
+            <form action="/cart/add/{{ product.id }}" method="post" class="product-actions">
+                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                <button type="submit" class="btn-secondary">Add to Cart</button>
+                <button type="submit" formaction="/cart/add/{{ product.id }}" class="btn-primary">Buy Now</button>
+            </form>
 
             <div class="specifications">
                 <h3>Specifications</h3>

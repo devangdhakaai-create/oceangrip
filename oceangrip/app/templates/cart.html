@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Your Cart - OceanGrip{% endblock %}
+
+{% block content %}
+
+<div class="container cart-page">
+    <h1 class="section-title">Your Cart</h1>
+
+    {% if items %}
+    <div class="cart-items">
+        {% for entry in items %}
+        <div class="cart-item">
+            <img src="{{ entry.product.image_url }}" alt="{{ entry.product.name }}">
+            <div class="cart-item-info">
+                <h3>{{ entry.product.name }}</h3>
+                <p>₹{{ "%.2f"|format(entry.product.price) }} each</p>
+            </div>
+
+            <form action="/cart/update/{{ entry.product.id }}" method="post" class="cart-item-qty">
+                <input type="number" name="quantity" value="{{ entry.quantity }}" min="1" max="{{ entry.product.stock }}">
+                <button type="submit" class="btn-secondary">Update</button>
+            </form>
+
+            <p class="cart-item-total">₹{{ "%.2f"|format(entry.item_total) }}</p>
+
+            <form action="/cart/remove/{{ entry.product.id }}" method="post">
+                <button type="submit" class="btn-remove">Remove</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="cart-summary">
+        <div class="cart-summary-row">
+            <span>Subtotal</span>
+            <span>₹{{ "%.2f"|format(subtotal) }}</span>
+        </div>
+        <div class="cart-summary-row">
+            <span>Shipping</span>
+            <span>₹{{ "%.2f"|format(shipping) }}</span>
+        </div>
+        <div class="cart-summary-row cart-total">
+            <span>Total</span>
+            <span>₹{{ "%.2f"|format(total) }}</span>
+        </div>
+        <a href="/checkout" class="btn-primary cart-checkout-btn">Proceed to Checkout</a>
+    </div>
+
+    {% else %}
+    <p class="cart-empty">Your cart is empty.</p>
+    <a href="/products" class="btn-primary">Continue Shopping</a>
+    {% endif %}
+</div>
+
+{% endblock %}
