@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmed - OceanGrip{% endblock %}
+
+{% block content %}
+
+<div class="container order-confirmation">
+    <div class="confirmation-box">
+        <h1>Order Confirmed!</h1>
+        <p class="confirmation-message">Thank you, {{ order.full_name }}. Your order has been placed successfully.</p>
+
+        <div class="order-number-box">
+            <span>Order Number</span>
+            <strong>{{ order.order_number }}</strong>
+        </div>
+
+        <div class="order-details">
+            <h3>Order Details</h3>
+            {% for item in order.items %}
+            <div class="checkout-summary-item">
+                <span>{{ item.product_name }} × {{ item.quantity }}</span>
+                <span>₹{{ "%.2f"|format(item.price * item.quantity) }}</span>
+            </div>
+            {% endfor %}
+
+            <div class="cart-summary-row cart-total">
+                <span>Total Paid</span>
+                <span>₹{{ "%.2f"|format(order.total) }}</span>
+            </div>
+        </div>
+
+        <div class="shipping-details">
+            <h3>Shipping To</h3>
+            <p>{{ order.full_name }}</p>
+            <p>{{ order.address }}, {{ order.city }} - {{ order.pincode }}</p>
+            <p>{{ order.phone }} | {{ order.email }}</p>
+            <p>Delivery: {{ order.delivery_option }}</p>
+        </div>
+
+        <a href="/" class="btn-primary">Continue Shopping</a>
+    </div>
+</div>
+
+{% endblock %}

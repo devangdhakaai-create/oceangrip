@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - OceanGrip{% endblock %}
+
+{% block content %}
+
+<div class="container checkout-page">
+    <h1 class="section-title">Checkout</h1>
+
+    <div class="checkout-grid">
+        <form action="/checkout" method="post" class="checkout-form">
+            <h3>Shipping Details</h3>
+
+            <label>Full Name</label>
+            <input type="text" name="full_name" required>
+
+            <label>Email</label>
+            <input type="email" name="email" required>
+
+            <label>Phone</label>
+            <input type="tel" name="phone" required>
+
+            <label>Address</label>
+            <textarea name="address" required></textarea>
+
+            <label>City</label>
+            <input type="text" name="city" required>
+
+            <label>Pincode</label>
+            <input type="text" name="pincode" required>
+
+            <label>Delivery Option</label>
+            <select name="delivery_option">
+                <option value="Standard">Standard (3-5 days)</option>
+                <option value="Express">Express (1-2 days)</option>
+            </select>
+
+            <button type="submit" class="btn-primary checkout-submit">Place Order</button>
+        </form>
+
+        <div class="checkout-summary">
+            <h3>Order Summary</h3>
+            {% for entry in items %}
+            <div class="checkout-summary-item">
+                <span>{{ entry.product.name }} × {{ entry.quantity }}</span>
+                <span>₹{{ "%.2f"|format(entry.item_total) }}</span>
+            </div>
+            {% endfor %}
+
+            <div class="cart-summary-row">
+                <span>Subtotal</span>
+                <span>₹{{ "%.2f"|format(subtotal) }}</span>
+            </div>
+            <div class="cart-summary-row">
+                <span>Shipping</span>
+                <span>₹{{ "%.2f"|format(shipping) }}</span>
+            </div>
+            <div class="cart-summary-row cart-total">
+                <span>Total</span>
+                <span>₹{{ "%.2f"|format(total) }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
