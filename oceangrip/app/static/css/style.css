@@ -542,3 +542,120 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+.admin-login {
+    display: flex;
+    justify-content: center;
+    padding: 80px 0;
+}
+
+.admin-login-box {
+    background: white;
+    padding: 32px;
+    border-radius: 8px;
+    max-width: 350px;
+    width: 100%;
+}
+
+.admin-login-box label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.admin-login-box input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 16px;
+}
+
+.admin-error {
+    color: #c0392b;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.admin-page {
+    padding: 48px 0;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.admin-table {
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    border-collapse: collapse;
+    overflow: hidden;
+}
+
+.admin-table th, .admin-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-table th {
+    background: var(--deep-navy);
+    color: white;
+    font-size: 14px;
+}
+
+.admin-thumb {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-form {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    max-width: 600px;
+}
+
+.admin-form label {
+    display: block;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--deep-navy);
+    font-size: 14px;
+}
+
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.admin-form button {
+    margin-top: 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.admin-logout-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: var(--ocean-teal);
+    text-decoration: none;
+    font-size: 14px;
+}

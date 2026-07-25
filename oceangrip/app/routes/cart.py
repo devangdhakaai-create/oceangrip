@@ -170,7 +170,7 @@ async def place_order(
     return RedirectResponse(url=f"/order-confirmation/{order.order_number}",  status_code=303)
 
 
-@router.get("/order-confirmation/{order_nnumber}")
+@router.get("/order-confirmation/{order_number}")
 async def order_confirmation(order_number: str, request: Request, db: AsyncSession = Depends(get_db)):
     from sqlalchemy.orm import selectinload
     

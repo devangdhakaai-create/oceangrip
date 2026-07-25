@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{% if product %}Edit{% else %}Add{% endif %} Product - OceanGrip Admin{% endblock %}
+
+{% block content %}
+<div class="container admin-page">
+    <h1>{% if product %}Edit{% else %}Add New{% endif %} Product</h1>
+
+    <form
+        action="{% if product %}/admin/products/edit/{{ product.id }}{% else %}/admin/products/add{% endif %}"
+        method="post"
+        class="admin-form"
+    >
+        <label>Product Name</label>
+        <input type="text" name="name" value="{{ product.name if product else '' }}" required>
+
+        <label>Slug (URL-friendly, e.g. carbon-fiber-rod)</label>
+        <input type="text" name="slug" value="{{ product.slug if product else '' }}" required>
+
+        <label>Description</label>
+        <textarea name="description">{{ product.description if product else '' }}</textarea>
+
+        <label>Price (₹)</label>
+        <input type="number" step="0.01" name="price" value="{{ product.price if product else '' }}" required>
+
+        <label>Stock</label>
+        <input type="number" name="stock" value="{{ product.stock if product else 0 }}" required>
+
+        <label>Image URL</label>
+        <input type="text" name="image_url" value="{{ product.image_url if product else '' }}">
+
+        <label>Specifications</label>
+        <textarea name="specifications">{{ product.specifications if product else '' }}</textarea>
+
+        <label>Category</label>
+        <select name="category_id" required>
+            <option value="">-- Select Category --</option>
+            {% for category in categories %}
+            <option value="{{ category.id }}" {% if product and product.category_id == category.id %}selected{% endif %}>
+                {{ category.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn-primary">{% if product %}Update{% else %}Add{% endif %} Product</button>
+    </form>
+
+    <a href="/admin/products" class="admin-logout-link">Back to Products</a>
+</div>
+{% endblock %}

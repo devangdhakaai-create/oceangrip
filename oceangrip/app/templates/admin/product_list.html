@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Products - OceanGrip Admin{% endblock %}
+
+{% block content %}
+<div class="container admin-page">
+    <div class="admin-header">
+        <h1>Manage Products</h1>
+        <a href="/admin/products/add" class="btn-primary">+ Add Product</a>
+    </div>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td><img src="{{ product.image_url }}" alt="{{ product.name }}" class="admin-thumb"></td>
+                <td>{{ product.name }}</td>
+                <td>₹{{ "%.2f"|format(product.price) }}</td>
+                <td>{{ product.stock }}</td>
+                <td class="admin-actions">
+                    <a href="/admin/products/edit/{{ product.id }}" class="btn-secondary">Edit</a>
+                    <form action="/admin/products/delete/{{ product.id }}" method="post" onsubmit="return confirm('Delete this product?');">
+                        <button type="submit" class="btn-remove">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="/admin/logout" class="admin-logout-link">Logout</a>
+</div>
+{% endblock %}
