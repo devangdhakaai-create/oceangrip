@@ -659,3 +659,57 @@ body {
     text-decoration: none;
     font-size: 14px;
 }
+
+.listing-page {
+    padding: 48px 0;
+}
+
+.listing-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+.listing-filters {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.listing-filters label {
+    display: block;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--deep-navy);
+    font-size: 13px;
+}
+
+.listing-filters input,
+.listing-filters select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.listing-filters button {
+    width: 100%;
+    margin-top: 18px;
+    border: none;
+    cursor: pointer;
+}
+
+.no-results {
+    text-align: center;
+    color: var(--text-light);
+    padding: 40px 0;
+}
+
+@media (max-width: 768px) {
+    .listing-layout {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Shop All Products - OceanGrip{% endblock %}
+
+{% block content %}
+<div class="container listing-page">
+    <h1 class="section-title">Shop All Products</h1>
+
+    <div class="listing-layout">
+        <aside class="listing-filters">
+            <form action="/products" method="get">
+                <label>Search</label>
+                <input type="text" name="search" value="{{ search }}" placeholder="Search products...">
+
+                <label>Category</label>
+                <select name="category">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label>Min Price</label>
+                <input type="number" name="min_price" placeholder="0">
+
+                <label>Max Price</label>
+                <input type="number" name="max_price" placeholder="10000">
+
+                <label>Sort By</label>
+                <select name="sort">
+                    <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest</option>
+                    <option value="price_low" {% if sort == "price_low" %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_high" {% if sort == "price_high" %}selected{% endif %}>Price: High to Low</option>
+                </select>
+
+                <button type="submit" class="btn-primary">Apply Filters</button>
+            </form>
+        </aside>
+
+        <div class="listing-results">
+            {% if products %}
+            <div class="product-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                    <h3>{{ product.name }}</h3>
+                    <p class="product-price">₹{{ "%.2f"|format(product.price) }}</p>
+                    <a href="/products/{{ product.slug }}" class="btn-secondary">View Details</a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-results">No products found matching your filters.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

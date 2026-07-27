@@ -4,6 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.database import get_db
 from app.models import Category, Product
+from typing import Optional
+from fastapi import Query
 
 
 router = APIRouter()
@@ -54,3 +56,49 @@ async def product_details (slug: str, request: Request, db: AsyncSession = Depen
         }
     )
     
+@router.get("/products")
+async def product_listing(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    category: Optional[str] = None,
+    search: Optional[str] = None,
+    min_price: Optional[str] = Query(None),
+    max_price: Optional[str] = Query(None),
+    sort: str = "newest",
+):
+    query = select(Product)
+
+    if category:
+        cat_result = await db.execute(select(Category).where(Category.slug == category))
+        cat_obj = cat_result.scalar_one_or_none()
+        if cat_obj:
+            query = query.where(Product.category_id == cat_obj.id)
+    if search:
+        query = query.where(Product.name.ilike(f"%{search}%"))
+    if min_price and min_price.strip():
+        query = query.where(Product.price >= float(min_price))
+    if max_price and max_price.strip():
+        query = query.where(Product.price <= float(max_price))
+    if sort == "price_low":
+            query = query.order_by(Product.price.asc())
+    elif sort == "price_high":
+            query = query.order_by(Product.price.desc())
+    else:
+            query = query.order_by(Product.price.desc())
+            
+    result = await db.execute(query)
+    products = result.scalars().all()
+    categories_result = await db.execute(select(Category))
+    categories = categories_result.scalars().all()
+        
+    return templates.TemplateResponse(
+        request=request,
+        name="product_listing.html",
+        context={
+                "products" :products,
+                "categories":categories,
+                "search" : search or "",
+                "sort": sort,
+                "selected_category": category,
+        }
+    )
