@@ -8,6 +8,6 @@ class Category(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100),  unique=True, nullable=True)
     slug = Column( String(100), unique=True,  nullable=True)
-    # slug is an url-friendly version of name, using for clean url's like category/fishing- rod.
+    # Here slug is an url-friendly version of name, using for clean url's like fishing-rod.
     
     products = relationship("Product", back_populates="category")

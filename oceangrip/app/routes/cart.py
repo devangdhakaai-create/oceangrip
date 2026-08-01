@@ -8,6 +8,8 @@ from app.models import Product
 import random
 import string
 from app.models import Order, OrderItem
+from fastapi import BackgroundTasks
+from app.email_utils import send_order_confirmation_email
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -113,6 +115,7 @@ async def checkout_page(request: Request, db: AsyncSession = Depends(get_db)):
 @router.post("/checkout")
 async def place_order(
     request: Request,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
     full_name: str = Form(...),
     email: str = Form(...),
@@ -167,7 +170,13 @@ async def place_order(
         db.add(order_item)
     await db.commit()
     request.session["cart"] = {}
-    return RedirectResponse(url=f"/order-confirmation/{order.order_number}",  status_code=303)
+    from sqlalchemy.orm import selectinload
+    result = await db.execute(
+        select(Order).options(selectinload(Order.items)).where(Order.id == order.id)
+    )
+    order_with_items = result.scalar_one()
+    background_tasks.add_task(send_order_confirmation_email, order_with_items)
+    return RedirectResponse(url=f"/order-confirmation/{order.order_number}", status_code=303)
 
 
 @router.get("/order-confirmation/{order_number}")

@@ -5,7 +5,7 @@ from app.routes import pages, cart, admin
 
 app = FastAPI(title="OceanGrip")
 
-app.add_middleware(SessionMiddleware, secret_key="oceangrip-dev-secret-i-will-change-it-later-with-actual-one")
+app.add_middleware(SessionMiddleware, secret_key="oceangrip-secret-i-will-change-it-later-with-strong-one")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(pages.router)

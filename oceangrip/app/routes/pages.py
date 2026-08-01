@@ -64,7 +64,7 @@ async def product_listing(
     search: Optional[str] = None,
     min_price: Optional[str] = Query(None),
     max_price: Optional[str] = Query(None),
-    sort: str = "newest",
+    sort: str = "newest", #Here via keyword 'newest' it shows the result in asc to desc order
 ):
     query = select(Product)
 
