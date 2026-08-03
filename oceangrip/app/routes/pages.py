@@ -102,3 +102,24 @@ async def product_listing(
                 "selected_category": category,
         }
     )
+    
+@router.get("/about")
+async def about_page(request: Request):
+    return templates.TemplateResponse(request=request, name="about.html", context={})
+
+@router.get("/contact")
+async def contact_page(request: Request):
+    return templates.TemplateResponse(request=request, name="contact.html", context={})
+
+@router.get("/faq")
+async def faq_page(request: Request):
+    return templates.TemplateResponse(request=request, name="faq.html", context={})
+
+@router.get("/privacy")
+async def privacy_page(request:Request):
+    return templates.TemplateResponse(request=request, name="privacy.html", context={})
+
+@router.get("/terms")
+async def terms_page(request: Request):
+    return templates.TemplateResponse(request=request, name="terms.html", context={})
+
