@@ -10,6 +10,9 @@ class Order(Base):
     id = Column(Integer, primary_key=True, index=True)
     order_number= Column(String(20), unique=True,  nullable=False)
     
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)   # nullable for guest checkout
+    user = relationship("User", back_populates="orders")
+    
     full_name= Column(String(150), nullable=False)
     email= Column(String(150), nullable=False)
     phone = Column(String(20), nullable=False)

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders - OceanGrip{% endblock %}
+
+{% block content %}
+<div class="container static-page">
+    <h1 class="section-title">My Orders</h1>
+
+    {% if orders %}
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-card-header">
+                <div>
+                    <strong>{{ order.order_number }}</strong>
+                    <p class="order-date">{{ order.created_at.strftime('%d %b %Y') }}</p>
+                </div>
+                <p class="order-card-total">₹{{ "%.2f"|format(order.total) }}</p>
+            </div>
+            <div class="order-card-items">
+                {% for item in order.items %}
+                <p>{{ item.product_name }} × {{ item.quantity }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="cart-empty">You haven't placed any orders yet.</p>
+    <a href="/products" class="btn-primary">Start Shopping</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Register - OceanGrip{% endblock %}
+
+{% block content %}
+<div class="container admin-login">
+    <div class="admin-login-box">
+        <h2>Create Account</h2>
+        {% if error %}
+        <p class="admin-error">{{ error }}</p>
+        {% endif %}
+        <form action="/register" method="post">
+            <label>Full Name</label>
+            <input type="text" name="full_name" required>
+
+            <label>Email</label>
+            <input type="email" name="email" required>
+
+            <label>Password</label>
+            <input type="password" name="password" required minlength="6">
+
+            <button type="submit" class="btn-primary">Register</button>
+        </form>
+        <p class="auth-switch">Already have an account? <a href="/login">Login here</a></p>
+    </div>
+</div>
+{% endblock %}

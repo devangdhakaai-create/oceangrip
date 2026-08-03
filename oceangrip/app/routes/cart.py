@@ -145,6 +145,7 @@ async def place_order(
     
     order = Order(
         order_number=generate_order_number(),
+        user_id=request.session.get("user_id"),
         full_name=full_name,
         email=email,
         phone=phone,
