@@ -29,33 +29,45 @@ async def homepage(request: Request, db: AsyncSession = Depends(get_db)):
     })
     
 @router.get("/products/{slug}")
-async def product_details (slug: str, request: Request, db: AsyncSession = Depends(get_db)):
+async def product_detail(slug: str, request: Request, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Product).where(Product.slug == slug))
-    product = result.scalar_one_or_none() # Here scalar gives the single column/object & one_or_none expect exactly 0 or 1 matching rows, means if 1 is found then return the product object intead none .
+    product = result.scalar_one_or_none()
+
     if not product:
-        return templates.TemplateResponse(
-            request=request,
-            name="404.html",
-            context={},
-            status_code=404
-        )
-    related_result  = await  db.execute(
-        select(Product).where (
+        return templates.TemplateResponse(request=request, name="404.html", context={}, status_code=404)
+
+    related_result = await db.execute(
+        select(Product).where(
             Product.category_id == product.category_id,
             Product.id != product.id
         ).limit(4)
     )
     related_products = related_result.scalars().all()
-    
+
+    # Recently Viewed logic
+    recently_viewed_ids = request.session.get("recently_viewed", [])
+
+    recently_viewed_products = []
+    if recently_viewed_ids:
+        ids_to_fetch = [pid for pid in recently_viewed_ids if pid != product.id]
+        if ids_to_fetch:
+            rv_result = await db.execute(select(Product).where(Product.id.in_(ids_to_fetch)))
+            fetched = {p.id: p for p in rv_result.scalars().all()}
+            recently_viewed_products = [fetched[pid] for pid in ids_to_fetch if pid in fetched]
+
+    updated_ids = [product.id] + [pid for pid in recently_viewed_ids if pid != product.id]
+    request.session["recently_viewed"] = updated_ids[:6]
+
     return templates.TemplateResponse(
         request=request,
         name="product_details.html",
         context={
-            "product":product,
+            "product": product,
             "related_products": related_products,
+            "recently_viewed_products": recently_viewed_products,
         }
     )
-    
+        
 @router.get("/products")
 async def product_listing(
     request: Request,

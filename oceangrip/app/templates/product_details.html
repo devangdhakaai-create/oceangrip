@@ -27,6 +27,9 @@
                 <button type="submit" class="btn-secondary">Add to Cart</button>
                 <button type="submit" formaction="/cart/add/{{ product.id }}" class="btn-primary">Buy Now</button>
             </form>
+            <form action="/wishlist/add/{{ product.id }}" method="post" style="margin-bottom: 20px;">
+                <button type="submit" class="btn-secondary">♡ Add to Wishlist</button>
+            </form>
 
             <div class="specifications">
                 <h3>Specifications</h3>
@@ -41,6 +44,22 @@
     <h2 class="section-title">Related Products</h2>
     <div class="product-grid">
         {% for item in related_products %}
+        <div class="product-card">
+            <img src="{{ item.image_url }}" alt="{{ item.name }}">
+            <h3>{{ item.name }}</h3>
+            <p class="product-price">₹{{ "%.2f"|format(item.price) }}</p>
+            <a href="/products/{{ item.slug }}" class="btn-secondary">View Details</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if recently_viewed_products %}
+<section class="container">
+    <h2 class="section-title">Recently Viewed</h2>
+    <div class="product-grid">
+        {% for item in recently_viewed_products %}
         <div class="product-card">
             <img src="{{ item.image_url }}" alt="{{ item.name }}">
             <h3>{{ item.name }}</h3>

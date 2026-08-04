@@ -6,6 +6,7 @@ from sqlalchemy.future import select
 from app.database import get_db
 from app.models import User
 from app.auth_utils import hash_password, verify_password
+from app.models import WishlistItem
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -82,6 +83,7 @@ async def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/", status_code=303)
 
+
 from sqlalchemy.orm import selectinload
 from app.models import Order
 
@@ -104,4 +106,57 @@ async def my_orders(request: Request, db: AsyncSession = Depends(get_db)):
         request=request,
         name="my_orders.html",
         context={"orders": orders}
+    )
+    
+@router.post("/wishlist/add/{product_id}")
+async def add_to_wishlist(product_id: int, request: Request, db: AsyncSession =Depends(get_db)):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    result = await db.execute(
+        select(WishlistItem).where(
+            WishlistItem.user_id == user_id,
+            WishlistItem.product_id == product_id
+        )
+    )
+    existing = result.scalar_one_or_none()
+    if not existing:
+        db.add(WishlistItem(user_id=user_id, product_id=product_id))
+        await db.commit()
+    return RedirectResponse(url=request.headers.get("referer","/"),status_code=303)
+
+@router.post("/wishlist/remove/{product_id}")
+async def remove_from_wishlist(product_id:int, request:Request, db: AsyncSession = Depends(get_db)):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    result = await db.execute(
+        select(WishlistItem).where(
+            WishlistItem.user_id == user_id,
+            WishlistItem.product_id == product_id
+        )
+    )
+    item = result.scalar_one_or_none()
+    if item:
+        await db.delete(item)
+        await db.commit()
+    return RedirectResponse(url=request.headers.get("referer","/wishlist"), status_code=303)
+
+@router.get("/wishlist")
+async def view_wishlist(request: Request, db: AsyncSession = Depends(get_db)):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse(url="/login", status_code=303)
+    result = await db.execute(
+        select (WishlistItem).options(selectinload(WishlistItem.product))
+        .where(WishlistItem.user_id==user_id)
+        )
+    wishlist_items = result.scalars().all()
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="wishlist.html",
+        context={"wishlist_items": wishlist_items}
     )

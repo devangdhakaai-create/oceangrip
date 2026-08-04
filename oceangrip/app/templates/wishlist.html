@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}My Wishlist - OceanGrip{% endblock %}
+
+{% block content %}
+<div class="container static-page">
+    <h1 class="section-title">My Wishlist</h1>
+
+    {% if wishlist_items %}
+    <div class="product-grid">
+        {% for entry in wishlist_items %}
+        <div class="product-card">
+            <img src="{{ entry.product.image_url }}" alt="{{ entry.product.name }}">
+            <h3>{{ entry.product.name }}</h3>
+            <p class="product-price">₹{{ "%.2f"|format(entry.product.price) }}</p>
+            <a href="/products/{{ entry.product.slug }}" class="btn-secondary">View Details</a>
+            <form action="/wishlist/remove/{{ entry.product.id }}" method="post" style="margin-top: 8px;">
+                <button type="submit" class="btn-remove">Remove</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="cart-empty">Your wishlist is empty.</p>
+    <a href="/products" class="btn-primary">Browse Products</a>
+    {% endif %}
+</div>
+{% endblock %}
