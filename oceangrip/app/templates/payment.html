@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Payment - OceanGrip{% endblock %}
+
+{% block content %}
+<div class="container" style="text-align: center; padding: 80px 0;">
+    <h2>Redirecting to secure payment...</h2>
+    <p style="color: var(--text-light);">Please wait, do not close this window.</p>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "OceanGrip",
+        "description": "Order Payment",
+        "order_id": "{{ razorpay_order_id }}",
+        "prefill": {
+            "name": "{{ full_name }}",
+            "email": "{{ email }}",
+            "contact": "{{ phone }}"
+        },
+        "theme": {
+            "color": "#1b6b93"
+        },
+        "handler": function (response) {
+            var form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/checkout/verify";
+
+            var fields = {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature
+            };
+
+            for (var key in fields) {
+                var input = document.createElement("input");
+                input.type = "hidden";
+                input.name = key;
+                input.value = fields[key];
+                form.appendChild(input);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        },
+        "modal": {
+            "ondismiss": function () {
+                window.location.href = "/checkout";
+            }
+        }
+    };
+
+    var rzp = new Razorpay(options);
+    rzp.open();
+</script>
+{% endblock %}

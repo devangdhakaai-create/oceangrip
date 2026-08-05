@@ -10,6 +10,8 @@ import string
 from app.models import Order, OrderItem
 from fastapi import BackgroundTasks
 from app.email_utils import send_order_confirmation_email
+from app.payment_utils import create_razorpay_order, verify_payment_signature, RAZORPAY_KEY_ID
+import json
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -93,7 +95,7 @@ async def checkout_page(request: Request, db: AsyncSession = Depends(get_db)):
         if product:
             item_total = product.price * qty
             subtotal += item_total
-            items.append({"product": product, "quantity": qty, "item_total": item_total})
+            items.append({"product": product,"quantity": qty, "item_total":item_total})
             
     if not items:
         return RedirectResponse(url="/cart", status_code=303)
@@ -113,9 +115,9 @@ async def checkout_page(request: Request, db: AsyncSession = Depends(get_db)):
     )
     
 @router.post("/checkout")
-async def place_order(
+@router.post("/checkout")
+async def initiate_payment(
     request: Request,
-    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
     full_name: str = Form(...),
     email: str = Form(...),
@@ -127,56 +129,118 @@ async def place_order(
 ):
     cart = request.session.get("cart", {})
     items = []
-    subtotal = 0.00
-    
+    subtotal = 0.0
+
     for product_id_str, qty in cart.items():
         result = await db.execute(select(Product).where(Product.id == int(product_id_str)))
         product = result.scalar_one_or_none()
         if product:
-            item_total = product.price *qty
+            item_total = product.price * qty
             subtotal += item_total
-            items.append({"product":product, "quantity": qty})
-            
+            items.append({"product_id": product.id, "name": product.name, "price": product.price, "quantity": qty})
+
     if not items:
         return RedirectResponse(url="/cart", status_code=303)
-    
+
     shipping = 50.00
-    total = shipping + subtotal
+    total = subtotal + shipping
+
+    order_number = generate_order_number()
+    razorpay_order = create_razorpay_order(total, receipt_id=order_number)
+
+    # Stash pending order details in session - not saved to DB yet
+    request.session["pending_order"] = {
+        "order_number": order_number,
+        "full_name": full_name,
+        "email": email,
+        "phone": phone,
+        "address": address,
+        "city": city,
+        "pincode": pincode,
+        "delivery_option": delivery_option,
+        "items": items,
+        "subtotal": subtotal,
+        "shipping": shipping,
+        "total": total,
+        "razorpay_order_id": razorpay_order["id"],
+    }
+
+    return templates.TemplateResponse(
+        request=request,
+        name="payment.html",
+        context={
+            "razorpay_key_id": RAZORPAY_KEY_ID,
+            "razorpay_order_id": razorpay_order["id"],
+            "amount": int(total * 100),
+            "full_name": full_name,
+            "email": email,
+            "phone": phone,
+        }
+    )
     
+@router.post("/checkout/verify")
+async def verify_payment(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    background_tasks: BackgroundTasks = None,
+    razorpay_payment_id: str = Form(...),
+    razorpay_order_id: str = Form(...),
+    razorpay_signature: str = Form(...),
+):
+    pending = request.session.get("pending_order")
+
+    if not pending or pending["razorpay_order_id"] != razorpay_order_id:
+        return RedirectResponse(url="/cart", status_code=303)
+
+    is_valid = verify_payment_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature)
+
+    if not is_valid:
+        return templates.TemplateResponse(
+            request=request,
+            name="payment_failed.html",
+            context={}
+        )
+
     order = Order(
-        order_number=generate_order_number(),
+        order_number=pending["order_number"],
         user_id=request.session.get("user_id"),
-        full_name=full_name,
-        email=email,
-        phone=phone,
-        address=address,
-        city=city,
-        pincode=pincode,
-        delivery_option=delivery_option,
-        subtotal=subtotal,
-        shipping=shipping,
-        total=total,
+        full_name=pending["full_name"],
+        email=pending["email"],
+        phone=pending["phone"],
+        address=pending["address"],
+        city=pending["city"],
+        pincode=pending["pincode"],
+        delivery_option=pending["delivery_option"],
+        subtotal=pending["subtotal"],
+        shipping=pending["shipping"],
+        total=pending["total"],
     )
     db.add(order)
     await db.flush()
-    
-    for entry in items:
+
+    for entry in pending["items"]:
         order_item = OrderItem(
             order_id=order.id,
-            product_id=entry["product"].id,
-            product_name=entry["product"].name,
-            price=entry["product"].price,
+            product_id=entry["product_id"],
+            product_name=entry["name"],
+            price=entry["price"],
             quantity=entry["quantity"],
-        ) 
+        )
         db.add(order_item)
+
     await db.commit()
+
     request.session["cart"] = {}
+    request.session["pending_order"] = None
+
     from sqlalchemy.orm import selectinload
     result = await db.execute(
         select(Order).options(selectinload(Order.items)).where(Order.id == order.id)
     )
     order_with_items = result.scalar_one()
+
     background_tasks.add_task(send_order_confirmation_email, order_with_items)
+
     return RedirectResponse(url=f"/order-confirmation/{order.order_number}", status_code=303)
 
 
