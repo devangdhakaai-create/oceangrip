@@ -18,7 +18,8 @@
             </div>
 
             <form action="/cart/update/{{ entry.product.id }}" method="post" class="cart-item-qty">
-                <input type="number" name="quantity" value="{{ entry.quantity }}" min="1" max="{{ entry.product.stock }}">
+                <input type="number" name="quantity" value="{{ entry.quantity }}" min="1"
+                    max="{{ entry.product.stock }}">
                 <button type="submit" class="btn-secondary">Update</button>
             </form>
 
@@ -28,6 +29,15 @@
                 <button type="submit" class="btn-remove">Remove</button>
             </form>
         </div>
+        <div class="coupon-box">
+            <form action="/cart/apply-coupon" method="post">
+                <input type="text" name="coupon_code" placeholder="Enter coupon code" value="{{ coupon_code or '' }}">
+                <button type="submit" class="btn-secondary">Apply</button>
+            </form>
+            {% if coupon_code %}
+            <p class="coupon-applied">Coupon "{{ coupon_code }}" applied!</p>
+            {% endif %}
+        </div>
         {% endfor %}
     </div>
 
@@ -36,6 +46,12 @@
             <span>Subtotal</span>
             <span>₹{{ "%.2f"|format(subtotal) }}</span>
         </div>
+        {% if discount_amount %}
+        <div class="cart-summary-row" style="color: #2a9d5c;">
+            <span>Discount</span>
+            <span>-₹{{ "%.2f"|format(discount_amount) }}</span>
+        </div>
+        {% endif %}
         <div class="cart-summary-row">
             <span>Shipping</span>
             <span>₹{{ "%.2f"|format(shipping) }}</span>

@@ -6,7 +6,11 @@
 <div class="container admin-page">
     <div class="admin-header">
         <h1>Manage Products</h1>
-        <a href="/admin/products/add" class="btn-primary">+ Add Product</a>
+        <div>
+            <a href="/admin/coupons" class="btn-secondary">Coupons</a>
+            <a href="/admin/reports" class="btn-secondary">Reports</a>
+            <a href="/admin/products/add" class="btn-primary">+ Add Product</a>
+        </div>
     </div>
 
     <table class="admin-table">
@@ -28,7 +32,8 @@
                 <td>{{ product.stock }}</td>
                 <td class="admin-actions">
                     <a href="/admin/products/edit/{{ product.id }}" class="btn-secondary">Edit</a>
-                    <form action="/admin/products/delete/{{ product.id }}" method="post" onsubmit="return confirm('Delete this product?');">
+                    <form action="/admin/products/delete/{{ product.id }}" method="post"
+                        onsubmit="return confirm('Delete this product?');">
                         <button type="submit" class="btn-remove">Delete</button>
                     </form>
                 </td>

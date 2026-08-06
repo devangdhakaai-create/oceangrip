@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Coupons - OceanGrip Admin{% endblock %}
+
+{% block content %}
+<div class="container admin-page">
+    <div class="admin-header">
+        <h1>Manage Coupons</h1>
+    </div>
+
+    <form action="/admin/coupons/add" method="post" class="admin-form" style="margin-bottom: 24px;">
+        <label>Coupon Code</label>
+        <input type="text" name="code" placeholder="e.g. SAVE10" required>
+
+        <label>Discount Percent</label>
+        <input type="number" name="discount_percent" step="0.01" placeholder="10" required>
+
+        <button type="submit" class="btn-primary">Add Coupon</button>
+    </form>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for coupon in coupons %}
+            <tr>
+                <td>{{ coupon.code }}</td>
+                <td>{{ coupon.discount_percent }}%</td>
+                <td>{% if coupon.is_active %}Active{% else %}Inactive{% endif %}</td>
+                <td class="admin-actions">
+                    <form action="/admin/coupons/toggle/{{ coupon.id }}" method="post">
+                        <button type="submit" class="btn-secondary">
+                            {% if coupon.is_active %}Deactivate{% else %}Activate{% endif %}
+                        </button>
+                    </form>
+                    <form action="/admin/coupons/delete/{{ coupon.id }}" method="post" onsubmit="return confirm('Delete this coupon?');">
+                        <button type="submit" class="btn-remove">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="/admin/products" class="admin-logout-link">Back to Products</a>
+</div>
+{% endblock %}

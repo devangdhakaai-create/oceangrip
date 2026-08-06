@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.database import get_db
-from app.models import Product, Category
+from app.models import Product, Category, Coupon, Order, OrderItem
 
 router = APIRouter(prefix="/admin")
 templates = Jinja2Templates(directory="app/templates")
@@ -142,3 +142,92 @@ async def admin_delete_product(product_id: int, request: Request, db: AsyncSessi
         await db.delete(product)
         await db.commit()
     return RedirectResponse(url="/admin/products", status_code=303)
+
+
+@router.get("/coupons")
+async def admin_coupon_list(request:Request, db:AsyncSession = Depends(get_db)):
+    if not is_admin(request):
+        return RedirectResponse(url="/admin/login", status_code=303)
+    
+    result =await db.execute(select(Coupon))
+    coupons=result.scalars().all()
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="admin/coupon_list.html",
+        context={"coupons":coupons}
+    )
+@router.post("/coupons/add")
+async def admin_add_coupon (
+    request  :Request,
+    db: AsyncSession = Depends(get_db),
+    code: str = Form(...),
+    discount_percent: float = Form(...)
+):
+    if not is_admin(request):
+        return RedirectResponse(url="/admin/login", status_code=303)
+    
+    coupon = Coupon(code=code.upper(),discount_percent=discount_percent,is_active=True)
+    db.add(coupon)
+    db.commit()
+    return RedirectResponse(url="/admin/coupons",status_code=303)
+
+@router.post("/coupons/toggle/{coupon_id}")
+async def admin_toggle_coupon(coupon_id:int, request: Request, db: AsyncSession =Depends(get_db)):
+    if not is_admin(request):
+        return RedirectResponse(url="/admin/login", status_code=303)
+    result=await db.execute(select(Coupon).where(Coupon.id==coupon_id))
+    coupon = result.scalar_one_or_none()
+    
+    if coupon:
+        coupon.is_active =not coupon.is_active
+        await db.commit()
+    return RedirectResponse(url="/admin/coupons", status_code=303)
+
+@router.post("/coupons/delete/{coupon_id}")
+async def admin_delete_coupon(coupon_id:int, request:Request,db:AsyncSession=Depends(get_db)):
+    if not is_admin(request):
+        return RedirectResponse(url="/admin/login", status_code=303)
+    
+    result=await db.execute(select(Coupon).where(Coupon.id ==coupon_id))
+    coupon =result.scalar_one_or_none()
+    
+    if coupon:
+        await db.delete()
+        await db.commit()
+    return RedirectResponse(url="/admin/coupons",status_code=303)
+
+
+@router.get("/reports")
+async def admin_sales_reports(request: Request, db: AsyncSession = Depends(get_db)):
+    if not is_admin(request):
+        return RedirectResponse(url="/admin/login", status_code=303)
+
+    from sqlalchemy import func
+
+    total_result = await db.execute(select(func.count(Order.id), func.coalesce(func.sum(Order.total), 0)))
+    total_orders, total_revenue = total_result.one()
+
+    top_products_result = await db.execute(
+        select(OrderItem.product_name, func.sum(OrderItem.quantity).label("total_qty"))
+        .group_by(OrderItem.product_name)
+        .order_by(func.sum(OrderItem.quantity).desc())
+        .limit(5)
+    )
+    top_products = top_products_result.all()
+
+    recent_orders_result = await db.execute(
+        select(Order).order_by(Order.created_at.desc()).limit(10)
+    )
+    recent_orders = recent_orders_result.scalars().all()
+
+    return templates.TemplateResponse(
+        request=request,
+        name="admin/reports.html",
+        context={
+            "total_orders": total_orders,
+            "total_revenue": total_revenue,
+            "top_products": top_products,
+            "recent_orders": recent_orders,
+        }
+    )

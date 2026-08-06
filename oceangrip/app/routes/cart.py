@@ -12,6 +12,7 @@ from fastapi import BackgroundTasks
 from app.email_utils import send_order_confirmation_email
 from app.payment_utils import create_razorpay_order, verify_payment_signature, RAZORPAY_KEY_ID
 import json
+from app.models import Coupon
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -45,7 +46,10 @@ async def view_cart(request: Request, db: AsyncSession = Depends(get_db)):
             
             
     shipping = 50.00 if subtotal > 0 else 0.00
-    total = subtotal + shipping
+    coupon_code = request.session.get("coupon_code")
+    coupon_discount_percent = request.session.get("coupon_discount",0)
+    discount_amount = (subtotal *  coupon_discount_percent/100) if coupon_discount_percent else 0
+    total = subtotal + shipping - discount_amount
     
     return templates.TemplateResponse(
         request=request,
@@ -55,6 +59,8 @@ async def view_cart(request: Request, db: AsyncSession = Depends(get_db)):
             "subtotal": subtotal,
             "shipping": shipping,
             "total": total,
+            "coupon_code":coupon_code,
+            "discount_amount":discount_amount,
         }
     )
     
@@ -115,17 +121,17 @@ async def checkout_page(request: Request, db: AsyncSession = Depends(get_db)):
     )
     
 @router.post("/checkout")
-@router.post("/checkout")
+
 async def initiate_payment(
     request: Request,
     db: AsyncSession = Depends(get_db),
-    full_name: str = Form(...),
+    full_name: str =Form(...),
     email: str = Form(...),
-    phone: str = Form(...),
-    address: str = Form(...),
+    phone: str= Form(...),
+    address:str = Form(...),
     city: str = Form(...),
-    pincode: str = Form(...),
-    delivery_option: str = Form("Standard"),
+    pincode: str= Form(...),
+    delivery_option: str =Form("Standard"),
 ):
     cart = request.session.get("cart", {})
     items = []
@@ -137,18 +143,20 @@ async def initiate_payment(
         if product:
             item_total = product.price * qty
             subtotal += item_total
-            items.append({"product_id": product.id, "name": product.name, "price": product.price, "quantity": qty})
+            items.append({"product_id": product.id, "name": product.name,"price": product.price, "quantity": qty})
 
     if not items:
         return RedirectResponse(url="/cart", status_code=303)
 
     shipping = 50.00
-    total = subtotal + shipping
+    coupon_discount_percent = request.session.get("coupon_discount", 0)
+    discount_amount = (subtotal * coupon_discount_percent/ 100) if coupon_discount_percent else 0
+    total = subtotal + shipping - discount_amount
 
     order_number = generate_order_number()
     razorpay_order = create_razorpay_order(total, receipt_id=order_number)
 
-    # Stash pending order details in session - not saved to DB yet
+    # pending order details stored in session not in db until payment is verified
     request.session["pending_order"] = {
         "order_number": order_number,
         "full_name": full_name,
@@ -199,8 +207,7 @@ async def verify_payment(
             request=request,
             name="payment_failed.html",
             context={}
-        )
-
+        )        
     order = Order(
         order_number=pending["order_number"],
         user_id=request.session.get("user_id"),
@@ -260,3 +267,17 @@ async def order_confirmation(order_number: str, request: Request, db: AsyncSessi
         name="order_confirmation.html",
         context={"order":order}
     )
+    
+@router.post("/cart/apply-coupon")
+async def apply_coupon(request: Request, db: AsyncSession = Depends(get_db), coupon_code: str =Form(...)):
+    result = await db.execute(
+        select(Coupon).where(Coupon.code == coupon_code.upper(), Coupon.is_active == True)
+    )
+    coupon = result.scalar_one_or_none()
+    if coupon:
+        request.session["coupon_code"] = coupon.code
+        request.session["coupon_discount"] = coupon.discount_percent
+    else:
+        request.session["coupon_code"] = None
+        request.session["coupon_discount"] = None
+    return RedirectResponse(url="/cart", status_code=303)

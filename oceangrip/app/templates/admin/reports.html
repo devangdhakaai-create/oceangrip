@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Sales Reports - OceanGrip Admin{% endblock %}
+
+{% block content %}
+<div class="container admin-page">
+    <h1>Sales Reports</h1>
+
+    <div class="reports-stats">
+        <div class="stat-card">
+            <span>Total Orders</span>
+            <strong>{{ total_orders }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Total Revenue</span>
+            <strong>₹{{ "%.2f"|format(total_revenue) }}</strong>
+        </div>
+    </div>
+
+    <h3 style="margin-top: 32px; margin-bottom: 12px;">Top Selling Products</h3>
+    <table class="admin-table">
+        <thead>
+            <tr><th>Product</th><th>Units Sold</th></tr>
+        </thead>
+        <tbody>
+            {% for name, qty in top_products %}
+            <tr><td>{{ name }}</td><td>{{ qty }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3 style="margin-top: 32px; margin-bottom: 12px;">Recent Orders</h3>
+    <table class="admin-table">
+        <thead>
+            <tr><th>Order #</th><th>Customer</th><th>Total</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+            {% for order in recent_orders %}
+            <tr>
+                <td>{{ order.order_number }}</td>
+                <td>{{ order.full_name }}</td>
+                <td>₹{{ "%.2f"|format(order.total) }}</td>
+                <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="/admin/products" class="admin-logout-link">Back to Products</a>
+</div>
+{% endblock %}
